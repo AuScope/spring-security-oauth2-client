@@ -3,21 +3,21 @@ package com.racquettrack.security.oauth;
 import java.io.IOException;
 import java.util.Map;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
+import org.glassfish.jersey.client.ClientResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientHandlerException;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.UniformInterfaceException;
-import com.sun.jersey.api.client.WebResource;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * A default implementation of {@link OAuth2UserInfoProvider} that obtains a {@link Map} of properties
@@ -48,7 +48,8 @@ public class DefaultOAuth2UserInfoProvider implements OAuth2UserInfoProvider, In
             } else {
                 LOGGER.error("Got error response (code={}) from Provider: {}", clientResponse.getStatus(), output);
             }
-        } catch (UniformInterfaceException | ClientHandlerException e) {
+
+        } catch (RuntimeException e) {
             LOGGER.error("Jersey client threw a runtime exception", e);
         }
 
@@ -68,24 +69,24 @@ public class DefaultOAuth2UserInfoProvider implements OAuth2UserInfoProvider, In
     private ClientResponse getClientResponseFromProviderUsing(Authentication token) {
         Client client = getClient();
 
-        WebResource webResource = client
-                .resource(oAuth2ServiceProperties.getUserInfoUri())
+        WebTarget webTarget = client
+                .target(oAuth2ServiceProperties.getUserInfoUri())
                 .queryParam(oAuth2ServiceProperties.getAccessTokenName(), (String)token.getCredentials());
 
         if (oAuth2ServiceProperties.getAdditionalInfoParams() != null) {
             for (Map.Entry<String, String> entry : oAuth2ServiceProperties.getAdditionalInfoParams().entrySet()) {
-                webResource = webResource.queryParam(entry.getKey(), entry.getValue());
+                webTarget = webTarget.queryParam(entry.getKey(), entry.getValue());
             }
         }
 
-        ClientResponse clientResponse = webResource.accept(MediaType.APPLICATION_JSON_TYPE)
+        ClientResponse clientResponse = webTarget.request(MediaType.APPLICATION_JSON_TYPE)
                 .get(ClientResponse.class);
 
         return clientResponse;
     }
 
     private String getStringRepresentationFrom(ClientResponse clientResponse) {
-        return clientResponse.getEntity(String.class);
+        return clientResponse.getEntity().toString();
     }
 
     private Map<String, Object> getUserInfoMapFrom(String string) {
@@ -102,7 +103,7 @@ public class DefaultOAuth2UserInfoProvider implements OAuth2UserInfoProvider, In
     }
 
     private boolean isOkay(ClientResponse clientResponse) {
-        return clientResponse != null && clientResponse.getClientResponseStatus() == ClientResponse.Status.OK;
+        return clientResponse != null && clientResponse.getStatusInfo() == Response.Status.OK;
     }
 
     /**
@@ -111,7 +112,7 @@ public class DefaultOAuth2UserInfoProvider implements OAuth2UserInfoProvider, In
      */
     protected Client getClient() {
         if (client == null) {
-            client = Client.create();
+            client = ClientBuilder.newClient();
         }
         return client;
     }

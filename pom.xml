@@ -21,9 +21,8 @@
         <version.spring-security>3.2.4.RELEASE</version.spring-security>
         <version.spring>3.2.10.RELEASE</version.spring>
         <version.javaJDK>1.7</version.javaJDK>
-        <version.jersey>1.14</version.jersey>
+        <version.jersey>2.22.1</version.jersey>
         <version.commons-lang3>3.1</version.commons-lang3>
-        <version.jackson-jaxrs>1.9.12</version.jackson-jaxrs>
         <slf4j.version>1.7.6</slf4j.version>
     </properties>
 
@@ -43,23 +42,23 @@
 
         <!-- Jersey Dependencies -->
         <dependency>
-            <groupId>com.sun.jersey</groupId>
+            <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-server</artifactId>
             <version>${version.jersey}</version>
         </dependency>
         <dependency>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-json</artifactId>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-json-jackson</artifactId>
             <version>${version.jersey}</version>
         </dependency>
         <dependency>
-            <groupId>com.sun.jersey</groupId>
+            <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-client</artifactId>
             <version>${version.jersey}</version>
         </dependency>
         <dependency>
-            <groupId>com.sun.jersey.contribs</groupId>
-            <artifactId>jersey-spring</artifactId>
+            <groupId>org.glassfish.jersey.ext</groupId>
+            <artifactId>jersey-spring3</artifactId>
             <version>${version.jersey}</version>
             <exclusions>
                 <exclusion>
@@ -88,18 +87,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>com.sun.jersey.jersey-test-framework</groupId>
-            <artifactId>jersey-test-framework-grizzly2</artifactId>
-            <version>${version.jersey}</version>
-            <scope>test</scope>
-        </dependency>
         <!-- End Jersey Dependencies -->
-        <dependency>
-          <groupId>org.codehaus.jackson</groupId>
-          <artifactId>jackson-mapper-asl</artifactId>
-          <version>${version.jackson-jaxrs}</version>
-        </dependency>
 
         <dependency>
             <groupId>javax.servlet</groupId>

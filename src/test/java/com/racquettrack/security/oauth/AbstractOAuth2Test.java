@@ -1,17 +1,18 @@
 package com.racquettrack.security.oauth;
 
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation.Builder;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
+import org.glassfish.jersey.client.ClientResponse;
 import org.mockito.Matchers;
-
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
 
 /**
  * Helper class for initialising mocks for OAuth testing.
@@ -19,11 +20,10 @@ import com.sun.jersey.api.client.WebResource;
  * @author paul.wheeler
  */
 public class AbstractOAuth2Test {
-
     protected Client client = mock(Client.class);
-    protected WebResource webResource = mock(WebResource.class);
+    protected WebTarget webTarget = mock(WebTarget.class);
     protected ClientResponse clientResponse = mock(ClientResponse.class);
-    protected WebResource.Builder builder = mock(WebResource.Builder.class);
+    protected Builder builder = mock(Builder.class);
 
     /**
      * Initialise all the mocks necessary for mocking calls to the OAuth Provider.
@@ -35,15 +35,14 @@ public class AbstractOAuth2Test {
      * @param defaultResponse The defaultResponse data that will be returned by the call to {@link ClientResponse#getEntity(Class)}.
      */
     protected void initMocks(String resourceUri, String defaultResponse) {
-        given(client.resource(resourceUri)).willReturn(webResource);
-        given(webResource.queryParam(Matchers.anyString(), Matchers.anyString())).willReturn(webResource);
-        given(webResource.accept(MediaType.APPLICATION_JSON_TYPE)).willReturn(builder);
-        given(builder.type(MediaType.APPLICATION_FORM_URLENCODED)).willReturn(builder);
-        given(builder.post(eq(ClientResponse.class), anyObject())).willReturn(clientResponse);
+        given(client.target(resourceUri)).willReturn(webTarget);
+        given(webTarget.queryParam(Matchers.anyString(), Matchers.anyString())).willReturn(webTarget);
+        given(webTarget.request(MediaType.APPLICATION_JSON_TYPE)).willReturn(builder);
+        given(builder.post(Matchers.<Entity<?>>any(), eq(ClientResponse.class))).willReturn(clientResponse);
         given(builder.get(ClientResponse.class)).willReturn(clientResponse);
         given(clientResponse.getStatus()).willReturn(200);
-        given(clientResponse.getClientResponseStatus()).willReturn(ClientResponse.Status.OK);
+        given(clientResponse.getStatusInfo()).willReturn(Response.Status.OK);
 
-        given(clientResponse.getEntity(String.class)).willReturn(defaultResponse);
+        given(clientResponse.getEntity()).willReturn(defaultResponse);
     }
 }
