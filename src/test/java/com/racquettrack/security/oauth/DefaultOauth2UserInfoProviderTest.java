@@ -10,8 +10,6 @@ import static org.mockito.Mockito.verify;
 import java.util.Collections;
 import java.util.Map;
 
-import javax.ws.rs.core.Response;
-
 import org.glassfish.jersey.client.ClientResponse;
 import org.junit.Before;
 import org.junit.Test;
@@ -71,8 +69,8 @@ public class DefaultOauth2UserInfoProviderTest extends AbstractOAuth2Test {
     @Test
     public void shouldReturnNullWhenProviderReturnsAnError() {
         // given
-        given(clientResponse.getEntity()).willReturn(MOCK_USER_INFO_ERROR_RESPONSE);
-        given(clientResponse.getStatusInfo()).willReturn(Response.Status.BAD_REQUEST);
+        given(clientResponse.readEntity(String.class)).willReturn(MOCK_USER_INFO_ERROR_RESPONSE);
+        given(clientResponse.getStatus()).willReturn(400);
 
         // when
         Map<String, Object> userInfo = defaultOAuth2UserInfoProvider.getUserInfoFromProvider(token);
@@ -84,7 +82,7 @@ public class DefaultOauth2UserInfoProviderTest extends AbstractOAuth2Test {
     @Test
     public void shouldReturnNullWhenJacksonMappingFails() {
         // given
-        given(clientResponse.getEntity()).willReturn(MOCK_BAD_USER_INFO_RESPONSE);
+        given(clientResponse.readEntity(String.class)).willReturn(MOCK_BAD_USER_INFO_RESPONSE);
 
         // when
         Map<String, Object> userInfo = defaultOAuth2UserInfoProvider.getUserInfoFromProvider(token);

@@ -4,13 +4,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 
 import javax.ws.rs.client.Entity;
 
 import org.apache.commons.lang3.RandomStringUtils;
-import org.glassfish.jersey.client.ClientResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -77,7 +75,7 @@ public class OAuth2AuthenticationProviderTest extends AbstractOAuth2Test {
     @Test(expected = AuthenticationException.class)
     public void shouldThrowAuthenticationExceptionWhenAuthorizationCodeIsInvalid() {
         // given
-        given(clientResponse.getEntity()).willReturn(MOCK_ACCESS_RESPONSE_FAILURE);
+        given(response.readEntity(String.class)).willReturn(MOCK_ACCESS_RESPONSE_FAILURE);
 
         // when
         oAuth2AuthenticationProvider.authenticate(oAuth2AuthenticationToken);
@@ -86,7 +84,7 @@ public class OAuth2AuthenticationProviderTest extends AbstractOAuth2Test {
     @Test(expected = AuthenticationException.class)
     public void shouldThrowAuthenticationExceptionWhenJerseyThrowsARuntimeError() {
         // given
-        given(builder.post(Matchers.<Entity<?>>any(), eq(ClientResponse.class))).willThrow(RuntimeException.class);
+        given(builder.post(Matchers.<Entity<?>>any())).willThrow(RuntimeException.class);
 
         // when
         oAuth2AuthenticationProvider.authenticate(oAuth2AuthenticationToken);
@@ -95,7 +93,7 @@ public class OAuth2AuthenticationProviderTest extends AbstractOAuth2Test {
     @Test(expected = AuthenticationException.class)
     public void shouldThrowAuthenticationExceptionWhenMappingFails() {
         // given
-        given(clientResponse.getEntity()).willReturn("bob bob bob");
+        given(response.readEntity(String.class)).willReturn("bob bob bob");
 
         // when
         oAuth2AuthenticationProvider.authenticate(oAuth2AuthenticationToken);

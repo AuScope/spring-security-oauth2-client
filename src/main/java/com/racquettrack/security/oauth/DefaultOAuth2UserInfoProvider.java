@@ -38,7 +38,7 @@ public class DefaultOAuth2UserInfoProvider implements OAuth2UserInfoProvider, In
         Map<String,Object> userInfo = null;
 
         try {
-            ClientResponse clientResponse = getClientResponseFromProviderUsing(token);
+            Response clientResponse = getClientResponseFromProviderUsing(token);
 
             String output = getStringRepresentationFrom(clientResponse);
             LOGGER.debug("Output is {}", output);
@@ -66,7 +66,7 @@ public class DefaultOAuth2UserInfoProvider implements OAuth2UserInfoProvider, In
      * @param token The {@link Authentication} token to use in the call.
      * @return The {@link ClientResponse} object.
      */
-    private ClientResponse getClientResponseFromProviderUsing(Authentication token) {
+    private Response getClientResponseFromProviderUsing(Authentication token) {
         Client client = getClient();
 
         WebTarget webTarget = client
@@ -79,14 +79,14 @@ public class DefaultOAuth2UserInfoProvider implements OAuth2UserInfoProvider, In
             }
         }
 
-        ClientResponse clientResponse = webTarget.request(MediaType.APPLICATION_JSON_TYPE)
-                .get(ClientResponse.class);
+        Response clientResponse = webTarget.request(MediaType.APPLICATION_JSON_TYPE)
+                .get();
 
         return clientResponse;
     }
 
-    private String getStringRepresentationFrom(ClientResponse clientResponse) {
-        return clientResponse.getEntity().toString();
+    private String getStringRepresentationFrom(Response clientResponse) {
+        return clientResponse.readEntity(String.class).toString();
     }
 
     private Map<String, Object> getUserInfoMapFrom(String string) {
@@ -102,8 +102,8 @@ public class DefaultOAuth2UserInfoProvider implements OAuth2UserInfoProvider, In
         return userInfo;
     }
 
-    private boolean isOkay(ClientResponse clientResponse) {
-        return clientResponse != null && clientResponse.getStatusInfo() == Response.Status.OK;
+    private boolean isOkay(Response clientResponse) {
+        return clientResponse != null && clientResponse.getStatus() == 200;
     }
 
     /**

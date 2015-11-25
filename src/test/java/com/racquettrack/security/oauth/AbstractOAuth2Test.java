@@ -1,7 +1,6 @@
 package com.racquettrack.security.oauth;
 
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 
 import javax.ws.rs.client.Client;
@@ -23,6 +22,7 @@ public class AbstractOAuth2Test {
     protected Client client = mock(Client.class);
     protected WebTarget webTarget = mock(WebTarget.class);
     protected ClientResponse clientResponse = mock(ClientResponse.class);
+    protected Response response = mock(Response.class);
     protected Builder builder = mock(Builder.class);
 
     /**
@@ -38,11 +38,13 @@ public class AbstractOAuth2Test {
         given(client.target(resourceUri)).willReturn(webTarget);
         given(webTarget.queryParam(Matchers.anyString(), Matchers.anyString())).willReturn(webTarget);
         given(webTarget.request(MediaType.APPLICATION_JSON_TYPE)).willReturn(builder);
-        given(builder.post(Matchers.<Entity<?>>any(), eq(ClientResponse.class))).willReturn(clientResponse);
+        given(builder.post(Matchers.<Entity<?>>any())).willReturn(response);
         given(builder.get(ClientResponse.class)).willReturn(clientResponse);
         given(clientResponse.getStatus()).willReturn(200);
         given(clientResponse.getStatusInfo()).willReturn(Response.Status.OK);
-
-        given(clientResponse.getEntity()).willReturn(defaultResponse);
+        given(clientResponse.readEntity(String.class)).willReturn(defaultResponse);
+        given(response.getStatus()).willReturn(200);
+        given(response.getStatusInfo()).willReturn(Response.Status.OK);
+        given(response.readEntity(String.class)).willReturn(defaultResponse);
     }
 }

@@ -10,7 +10,6 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.glassfish.jersey.client.ClientResponse;
 import org.glassfish.jersey.internal.util.collection.MultivaluedStringMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -160,7 +159,7 @@ public class OAuth2AuthenticationProvider implements AuthenticationProvider, Ini
         String accessToken = null;
 
         try {
-            ClientResponse clientResponse = getClientResponseForAccessTokenRequestFrom(authentication);
+            Response clientResponse = getClientResponseForAccessTokenRequestFrom(authentication);
 
             if (!isOkay(clientResponse)) {
                 throw new AuthenticationServiceException("Got HTTP error code from OAuth2 provider: "
@@ -187,7 +186,7 @@ public class OAuth2AuthenticationProvider implements AuthenticationProvider, Ini
         return accessToken;
     }
 
-    private ClientResponse getClientResponseForAccessTokenRequestFrom(Authentication authentication) {
+    private Response getClientResponseForAccessTokenRequestFrom(Authentication authentication) {
         Client client = getClient();
 
         MultivaluedStringMap values = new MultivaluedStringMap();
@@ -203,19 +202,19 @@ public class OAuth2AuthenticationProvider implements AuthenticationProvider, Ini
         }
 
         WebTarget webTarget = client.target(oAuth2ServiceProperties.getAccessTokenUri());
-        ClientResponse clientResponse = webTarget
+        Response clientResponse = webTarget
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.form(values), ClientResponse.class);
+                .post(Entity.form(values));
 
         return clientResponse;
     }
 
-    private boolean isOkay(ClientResponse clientResponse) {
-        return clientResponse != null && clientResponse.getStatusInfo() == Response.Status.OK;
+    private boolean isOkay(Response clientResponse) {
+        return clientResponse != null && clientResponse.getStatus() == 200;
     }
 
-    private String getStringRepresentationFrom(ClientResponse clientResponse) {
-        return clientResponse.getEntity().toString();
+    private String getStringRepresentationFrom(Response clientResponse) {
+        return clientResponse.readEntity(String.class);
     }
 
     private Map<String, Object> getUserDataMapFrom(String string) throws AuthenticationServiceException {
