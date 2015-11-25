@@ -10,15 +10,13 @@ import static org.mockito.Mockito.verify;
 import java.util.Collections;
 import java.util.Map;
 
+import org.glassfish.jersey.client.ClientResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.core.Authentication;
-
-import com.sun.jersey.api.client.ClientHandlerException;
-import com.sun.jersey.api.client.ClientResponse;
 
 /**
  * Tests for {@link DefaultOAuth2UserInfoProvider}.
@@ -71,8 +69,8 @@ public class DefaultOauth2UserInfoProviderTest extends AbstractOAuth2Test {
     @Test
     public void shouldReturnNullWhenProviderReturnsAnError() {
         // given
-        given(clientResponse.getEntity(String.class)).willReturn(MOCK_USER_INFO_ERROR_RESPONSE);
-        given(clientResponse.getClientResponseStatus()).willReturn(ClientResponse.Status.BAD_REQUEST);
+        given(clientResponse.readEntity(String.class)).willReturn(MOCK_USER_INFO_ERROR_RESPONSE);
+        given(clientResponse.getStatus()).willReturn(400);
 
         // when
         Map<String, Object> userInfo = defaultOAuth2UserInfoProvider.getUserInfoFromProvider(token);
@@ -84,7 +82,7 @@ public class DefaultOauth2UserInfoProviderTest extends AbstractOAuth2Test {
     @Test
     public void shouldReturnNullWhenJacksonMappingFails() {
         // given
-        given(clientResponse.getEntity(String.class)).willReturn(MOCK_BAD_USER_INFO_RESPONSE);
+        given(clientResponse.readEntity(String.class)).willReturn(MOCK_BAD_USER_INFO_RESPONSE);
 
         // when
         Map<String, Object> userInfo = defaultOAuth2UserInfoProvider.getUserInfoFromProvider(token);
@@ -96,7 +94,7 @@ public class DefaultOauth2UserInfoProviderTest extends AbstractOAuth2Test {
     @Test
     public void shouldReturnNullWhenJerseyThrowsARuntimeError() {
         // given
-        given(builder.get(ClientResponse.class)).willThrow(ClientHandlerException.class);
+        given(builder.get(ClientResponse.class)).willThrow(RuntimeException.class);
 
         // when
         Map<String, Object> userInfo = defaultOAuth2UserInfoProvider.getUserInfoFromProvider(token);
@@ -112,6 +110,6 @@ public class DefaultOauth2UserInfoProviderTest extends AbstractOAuth2Test {
 
         Map<String, Object> userInfo = defaultOAuth2UserInfoProvider.getUserInfoFromProvider(token);
         assertThat(userInfo, notNullValue());
-        verify(webResource).queryParam("extra_param", "param_value");
+        verify(webTarget).queryParam("extra_param", "param_value");
     }
 }

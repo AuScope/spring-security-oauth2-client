@@ -3,10 +3,14 @@ package com.racquettrack.security.oauth;
 import java.io.IOException;
 import java.util.Map;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
+import org.glassfish.jersey.internal.util.collection.MultivaluedStringMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -21,12 +25,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
 import org.springframework.util.Assert;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientHandlerException;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.UniformInterfaceException;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.core.util.MultivaluedMapImpl;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Processes an OAuth2 authentication request. The request will typically originate from a
@@ -159,7 +159,7 @@ public class OAuth2AuthenticationProvider implements AuthenticationProvider, Ini
         String accessToken = null;
 
         try {
-            ClientResponse clientResponse = getClientResponseForAccessTokenRequestFrom(authentication);
+            Response clientResponse = getClientResponseForAccessTokenRequestFrom(authentication);
 
             if (!isOkay(clientResponse)) {
                 throw new AuthenticationServiceException("Got HTTP error code from OAuth2 provider: "
@@ -178,7 +178,7 @@ public class OAuth2AuthenticationProvider implements AuthenticationProvider, Ini
 
             accessToken = (String)userData.get(oAuth2ServiceProperties.getAccessTokenName());
 
-        } catch (UniformInterfaceException | ClientHandlerException e) {
+        } catch (Exception e) {
             LOGGER.error("Error thrown by Jersey client when exchanging code for token", e);
             throw new AuthenticationServiceException("Error thrown by Jersey client when exchanging code for token", e);
         }
@@ -186,10 +186,10 @@ public class OAuth2AuthenticationProvider implements AuthenticationProvider, Ini
         return accessToken;
     }
 
-    private ClientResponse getClientResponseForAccessTokenRequestFrom(Authentication authentication) {
+    private Response getClientResponseForAccessTokenRequestFrom(Authentication authentication) {
         Client client = getClient();
 
-        MultivaluedMapImpl values = new MultivaluedMapImpl();
+        MultivaluedStringMap values = new MultivaluedStringMap();
         values.add(oAuth2ServiceProperties.getGrantTypeParamName(), oAuth2ServiceProperties.getGrantType());
         values.add(oAuth2ServiceProperties.getClientIdParamName(), oAuth2ServiceProperties.getClientId());
         values.add(oAuth2ServiceProperties.getClientSecretParamName(), oAuth2ServiceProperties.getClientSecret());
@@ -201,21 +201,20 @@ public class OAuth2AuthenticationProvider implements AuthenticationProvider, Ini
             values.add(oAuth2ServiceProperties.getRedirectUriParamName(), oAuth2ServiceProperties.getRedirectUri());
         }
 
-        WebResource webResource = client.resource(oAuth2ServiceProperties.getAccessTokenUri());
-        ClientResponse clientResponse = webResource
-                .accept(MediaType.APPLICATION_JSON_TYPE)
-                .type(MediaType.APPLICATION_FORM_URLENCODED)
-                .post(ClientResponse.class, values);
+        WebTarget webTarget = client.target(oAuth2ServiceProperties.getAccessTokenUri());
+        Response clientResponse = webTarget
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .post(Entity.form(values));
 
         return clientResponse;
     }
 
-    private boolean isOkay(ClientResponse clientResponse) {
-        return clientResponse != null && clientResponse.getClientResponseStatus() == ClientResponse.Status.OK;
+    private boolean isOkay(Response clientResponse) {
+        return clientResponse != null && clientResponse.getStatus() == 200;
     }
 
-    private String getStringRepresentationFrom(ClientResponse clientResponse) {
-        return clientResponse.getEntity(String.class);
+    private String getStringRepresentationFrom(Response clientResponse) {
+        return clientResponse.readEntity(String.class);
     }
 
     private Map<String, Object> getUserDataMapFrom(String string) throws AuthenticationServiceException {
@@ -242,7 +241,7 @@ public class OAuth2AuthenticationProvider implements AuthenticationProvider, Ini
      */
     public Client getClient() {
         if (client == null) {
-            client = Client.create();
+            client = ClientBuilder.newClient();
         }
         return client;
     }
