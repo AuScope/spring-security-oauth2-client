@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.racquettrack</groupId>
@@ -13,8 +14,8 @@
         <connection>scm:git:https://github.com/pwheel/spring-security-oauth2-client.git</connection>
         <url>scm:git:https://github.com/pwheel/spring-security-oauth2-client.git</url>
         <developerConnection>scm:git:https://github.com/pwheel/spring-security-oauth2-client.git</developerConnection>
-      <tag>HEAD</tag>
-  </scm>
+        <tag>HEAD</tag>
+    </scm>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -26,6 +27,37 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.5.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.5.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.5.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+            <version>2.5.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.jaxrs</groupId>
+            <artifactId>jackson-jaxrs-base</artifactId>
+            <version>2.5.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.jaxrs</groupId>
+            <artifactId>jackson-jaxrs-json-provider</artifactId>
+            <version>2.5.4</version>
+        </dependency>
+
         <!-- Spring Security -->
         <dependency>
             <groupId>org.springframework.security</groupId>
@@ -83,10 +115,10 @@
             <version>${slf4j.version}</version>
         </dependency>
         <dependency>
-          <groupId>ch.qos.logback</groupId>
-          <artifactId>logback-classic</artifactId>
-          <version>1.1.2</version>
-          <scope>test</scope>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.1.2</version>
+            <scope>test</scope>
         </dependency>
 
         <!-- Test Dependencies -->
@@ -125,8 +157,8 @@
 
     <build>
         <plugins>
-            <!-- Compiler plugin enforces Java 1.6 compatibility and activates
-          annotation processors -->
+            <!-- Compiler plugin enforces Java 1.6 compatibility and activates 
+                annotation processors -->
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.2</version>
@@ -136,20 +168,20 @@
                     <debug>true</debug>
                 </configuration>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
                 <executions>
-                  <execution>
-                    <id>attach-sources</id>
-                    <goals>
-                        <goal>jar</goal>
-                    </goals>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>
-            
+
             <!-- Quality control plugins to execute during build phase -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -177,16 +209,16 @@
         </plugins>
     </build>
 
-  <distributionManagement>
-    <repository>
-      <id>racquettrack</id>
-      <name>RacquetTrack Releases</name>
-      <url>git:master://git@bitbucket.org:racquettrack/maven-repo.git</url>
-    </repository>
-    <snapshotRepository>
-      <id>racquettrack-snapshots</id>
-      <name>RacquetTrack Snapshots</name>
-      <url>git:master://git@bitbucket.org:racquettrack/maven-repo-snapshots.git</url>
-    </snapshotRepository>
-  </distributionManagement>
+    <distributionManagement>
+        <repository>
+            <id>racquettrack</id>
+            <name>RacquetTrack Releases</name>
+            <url>git:master://git@bitbucket.org:racquettrack/maven-repo.git</url>
+        </repository>
+        <snapshotRepository>
+            <id>racquettrack-snapshots</id>
+            <name>RacquetTrack Snapshots</name>
+            <url>git:master://git@bitbucket.org:racquettrack/maven-repo-snapshots.git</url>
+        </snapshotRepository>
+    </distributionManagement>
 </project>
