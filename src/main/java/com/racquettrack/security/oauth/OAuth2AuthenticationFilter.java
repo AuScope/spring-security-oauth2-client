@@ -168,7 +168,5 @@ public class OAuth2AuthenticationFilter extends AbstractAuthenticationProcessing
     public void afterPropertiesSet() {
         super.afterPropertiesSet();
         Assert.notNull(oAuth2ServiceProperties);
-        Assert.isTrue(oAuth2ServiceProperties.getRedirectUri().endsWith(super.getFilterProcessesUrl()),
-                "The filter must be configured to be listening on the redirect_uri in OAuth2ServiceProperties");
     }
 }
