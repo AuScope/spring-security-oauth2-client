@@ -57,6 +57,7 @@ public class DefaultOauth2UserInfoProviderTest extends AbstractOAuth2Test {
     @Test
     public void shouldGetUserInfoFromProvider() {
         // given
+        given(builder.get()).willReturn(response);
 
         // when
         Map<String, Object> userInfo = defaultOAuth2UserInfoProvider.getUserInfoFromProvider(token);
@@ -105,6 +106,8 @@ public class DefaultOauth2UserInfoProviderTest extends AbstractOAuth2Test {
 
     @Test
     public void shouldIncludeOptionalInfoParams() {
+        given(builder.get()).willReturn(response);
+
         Map<String,String> additionalInfoParams = Collections.singletonMap("extra_param", "param_value");
         given(oAuth2ServiceProperties.getAdditionalInfoParams()).willReturn(additionalInfoParams);
 
